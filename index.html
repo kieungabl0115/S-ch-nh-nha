@@ -426,10 +426,14 @@ select {
 .itile .cap b { font-weight: 600; font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .itile .count { position: absolute; top: 6px; right: 6px; background: rgba(47,58,75,.8); color: #FFFFFF; font-size: 10.5px; border-radius: 99px; padding: 1px 7px; }
 .itile:hover { border-color: var(--sage); }
-.itile.empty { border: 1.5px dashed var(--line2); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--fg3); }
-.itile.empty .cap { position: static; background: none; color: var(--fg2); padding: 0 8px; text-align: center; align-items: center; }
+.itile.empty { border: 1.5px dashed var(--line2); display: flex; flex-direction: column; align-items: stretch; justify-content: stretch; color: var(--fg3); cursor: default; }
+.itile.empty .slot-upload { flex: 1; border: 0; background: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: inherit; padding: 8px; }
+.itile.empty .cap { position: static; background: none; color: var(--fg2); padding: 0 4px; text-align: center; align-items: center; }
 .itile.empty .cap span { color: var(--fg3); }
-.itile.empty:hover { border-color: var(--accent); color: var(--accent-ink); background: var(--surface); }
+.itile.empty .slot-upload:hover { background: var(--surface); color: var(--accent-ink); }
+.itile.empty:hover { border-color: var(--accent); }
+.itile.empty .slot-link { position: absolute; top: 5px; right: 5px; border: 0; background: rgba(0,0,0,.35); color: #fff; border-radius: 5px; font-size: 13px; padding: 2px 5px; cursor: pointer; opacity: 0; transition: opacity .15s; line-height: 1.4; }
+.itile.empty:hover .slot-link { opacity: 1; }
 .itile.busy::after { content: "Đang nén ảnh…"; position: absolute; inset: 0; display: grid; place-items: center; background: var(--surface); font-size: 12px; color: var(--fg2); }
 .kblock { display: flex; flex-direction: column; gap: 6px; }
 .kstrip { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; }
@@ -1124,6 +1128,7 @@ const Store = {
     fullCache.delete(m.id);
   },
   async imageData(m) {
+    if (m.externalUrl) return m.externalUrl;
     if (fullCache.has(m.id)) return fullCache.get(m.id);
     let d;
     if (this.mode === 'cloud') {
@@ -1536,7 +1541,7 @@ function tile(m, p, o = {}) {
   const label = o.cap || kindLabel(m.kind);
   return `<button type="button" class="itile${isFilm(m.kind) ? ' film' : ''}" data-img="${m.id}"><img src="${m.thumb}" alt="${esc(kindLabel(m.kind) + ', ' + setLabel(p, m.set))}" loading="lazy">${o.count > 1 ? `<span class="count">${o.count} ảnh</span>` : ''}<span class="cap"><b>${esc(label)}</b><span>${esc(o.sub ?? fmtD(m.date))}</span></span></button>`;
 }
-const slot = (kind, set) => `<button type="button" class="itile empty" data-quick="${kind}" data-set="${set}">${isFilm(kind) ? FILM_ICON : CAM}<span class="cap"><b>${esc(kindLabel(kind))}</b><span>Bấm để tải lên</span></span></button>`;
+const slot = (kind, set) => `<div class="itile empty" data-quick="${kind}" data-set="${set}"><button type="button" class="slot-upload" data-quick="${kind}" data-set="${set}">${isFilm(kind) ? FILM_ICON : CAM}<span class="cap"><b>${esc(kindLabel(kind))}</b><span>Bấm để tải lên</span></span></button><button type="button" class="slot-link" data-kind="${kind}" data-set="${set}" title="Dán link Google Drive">🔗</button></div>`;
 const loadingImgs = '<div class="loading">Đang tải ảnh và phim…</div>';
 
 /* Films, by record set (Phim & phân tích tab) */
@@ -1776,6 +1781,54 @@ async function addImage(pid, file, kind, set, date, note) {
   await Store.putImage(m, prep.full);
   if (S.pid === pid && S.imagesFor === pid) S.images.push(m);
   return m;
+}
+/* Google Drive link helpers */
+function driveUrlToDirectUrl(url) {
+  url = url.trim();
+  // https://drive.google.com/file/d/FILE_ID/view?...
+  let m = url.match(/drive\.google\.com\/file\/d\/([^/?&]+)/);
+  if (m) return 'https://drive.google.com/uc?export=view&id=' + m[1];
+  // https://drive.google.com/open?id=FILE_ID
+  m = url.match(/drive\.google\.com\/open\?.*id=([^&]+)/);
+  if (m) return 'https://drive.google.com/uc?export=view&id=' + m[1];
+  // https://drive.google.com/uc?id=FILE_ID (already direct)
+  m = url.match(/drive\.google\.com\/uc\?.*id=([^&]+)/);
+  if (m) return 'https://drive.google.com/uc?export=view&id=' + m[1];
+  // lh3.googleusercontent.com or other direct image URL
+  if (/^https?:\/\//.test(url)) return url;
+  return null;
+}
+async function addImageFromUrl(pid, externalUrl, kind, set, date, note) {
+  // Tạo thumbnail nhỏ bằng cách load ảnh qua img element rồi canvas
+  const thumb = await new Promise(resolve => {
+    const img = new Image(); img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const c = document.createElement('canvas');
+        const max = 300; const r = Math.min(max / img.width, max / img.height, 1);
+        c.width = Math.round(img.width * r); c.height = Math.round(img.height * r);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        resolve(c.toDataURL('image/jpeg', 0.7));
+      } catch { resolve(externalUrl); }
+    };
+    img.onerror = () => resolve(externalUrl);
+    img.src = externalUrl;
+  });
+  const m = { id: uid('i'), pid, kind, set, date, note, thumb, externalUrl, w: 0, h: 0, createdAt: Date.now() };
+  await Store.putImage(m, externalUrl);
+  if (S.pid === pid && S.imagesFor === pid) S.images.push(m);
+  return m;
+}
+async function promptDriveLink(kind, set) {
+  const p = Store.get(S.pid); if (!p) return;
+  const url = window.prompt('Dán link Google Drive hoặc link ảnh trực tiếp:');
+  if (!url) return;
+  const directUrl = driveUrlToDirectUrl(url);
+  if (!directUrl) { toast('Link không hợp lệ. Hãy dùng link chia sẻ Google Drive.', true); return; }
+  const date = defaultDate(p, set);
+  const m = await addImageFromUrl(S.pid, directUrl, kind, set, date, '');
+  if (m) { refreshImages(); toast(`Đã thêm ${kindLabel(kind).toLowerCase()} từ link Drive.`); }
+  else toast('Không thêm được ảnh từ link này.', true);
 }
 async function runUpload(pid, files, kind, set, date, note, onStep) {
   let ok = 0, bad = 0;
@@ -3053,6 +3106,7 @@ document.addEventListener('click', async e => {
   if (d.modelset) { S.modelSet = d.modelset; return refreshImages(); }
   if (d.imgAdd !== undefined) { if (S.imagesFor !== S.pid) { toast('Đang tải ảnh của hồ sơ, đợi một chút rồi thử lại.'); return; } return openUpload(d.set, d.group); }
   if (d.quick) { if (S.imagesFor !== S.pid) return; QUICK = { kind: d.quick, set: d.set }; $('#file-img').click(); return; }
+  if (e.target.classList.contains('slot-link')) { const kind = e.target.dataset.kind, set = e.target.dataset.set; if (kind && set) promptDriveLink(kind, set); return; }
   if (d.img) return openViewer(d.img);
   if (d.kind) { UP.kind = d.kind; $('#up-kinds').classList.remove('need'); $('#up-kinds').innerHTML = kindsPicker(); return; }
   if (d.vw) { VW.id = d.vw; VW.zoom = false; return renderViewer(); }
