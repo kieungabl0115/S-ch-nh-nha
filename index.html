@@ -1888,8 +1888,7 @@ function benhAnHTML(p) {
     ${row('Tiền sử gia đình', area('famHistory', 'Bố mẹ, anh chị em có lệch lạc tương tự không', 2))}
   </table>`);
 
-  const IV = sec('IV.', 'Khám lâm sàng', `
-  <div class="ba-subsec"><b>A. Khám ngoài mặt</b></div>
+  const IV = sec('IV.', 'Khám ngoài mặt', `
   <table class="ba-tbl">
     ${row('Dạng mặt (nhìn thẳng)', `<select data-k="benh_an.faceShape" style="border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)"><option>—</option><option>Hình trứng (oval)</option><option>Thuôn dài (dolichofacial)</option><option>Ngắn rộng (brachyfacial)</option></select>`)}
     ${row('Cân xứng mặt', `<select data-k="benh_an.faceSymm" style="border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)"><option>—</option><option>Cân xứng</option><option>Không cân xứng nhẹ</option><option>Không cân xứng rõ</option></select>`)}
@@ -1901,8 +1900,9 @@ function benhAnHTML(p) {
     ${row('Nhận xét khác', area('extraOther', '', 2))}
   </table>
   <div class="ba-subsec" style="margin-top:10px; color:var(--fg2); font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding-bottom:0">Ảnh ngoài mặt</div>
-  ${baBigImgBlock(p, 'ex', '+ Thêm ảnh ngoài mặt')}
-  <div class="ba-subsec" style="margin-top:14px"><b>B. Khám trong miệng</b></div>
+  ${baBigImgBlock(p, 'ex', '+ Thêm ảnh ngoài mặt')}`);
+
+  const V = sec('V.', 'Khám trong miệng', `
   <table class="ba-tbl">
     ${row('Vệ sinh răng miệng', `<select data-k="benh_an.hygiene" style="border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)"><option>—</option><option>Tốt</option><option>Trung bình</option><option>Kém</option></select>`)}
     ${row('Tình trạng nướu', `<select data-k="benh_an.gingiva" style="border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)"><option>—</option><option>Bình thường</option><option>Viêm nướu nhẹ</option><option>Viêm nướu nặng</option><option>Viêm nha chu</option></select>`)}
@@ -1922,7 +1922,7 @@ function benhAnHTML(p) {
   <div class="ba-subsec" style="margin-top:10px; color:var(--fg2); font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding-bottom:0">Ảnh trong miệng</div>
   ${baBigImgBlock(p, 'in', '+ Thêm ảnh trong miệng')}`);
 
-  const V = sec('V.', 'Phân tích mẫu hàm', `<table class="ba-tbl">
+  const VI = sec('VI.', 'Phân tích mẫu hàm', `<table class="ba-tbl">
     ${row('Khoảng hiện có HT / HD (mm)', `<div style="display:flex;gap:10px"><div class="ctl" style="max-width:110px"><input type="number" step="0.1" data-k="benh_an.availU" value="${esc(ba.availU||'')}" class="has-unit" placeholder="HT"><span class="unit">mm</span></div><div class="ctl" style="max-width:110px"><input type="number" step="0.1" data-k="benh_an.availL" value="${esc(ba.availL||'')}" class="has-unit" placeholder="HD"><span class="unit">mm</span></div></div>`)}
     ${row('Khoảng cần có HT / HD (mm)', `<div style="display:flex;gap:10px"><div class="ctl" style="max-width:110px"><input type="number" step="0.1" data-k="benh_an.reqU" value="${esc(ba.reqU||'')}" class="has-unit" placeholder="HT"><span class="unit">mm</span></div><div class="ctl" style="max-width:110px"><input type="number" step="0.1" data-k="benh_an.reqL" value="${esc(ba.reqL||'')}" class="has-unit" placeholder="HD"><span class="unit">mm</span></div></div>`)}
     ${row('Chỉ số Bolton răng trước / toàn bộ', `<div style="display:flex;gap:10px"><div class="ctl" style="max-width:110px"><input type="number" step="0.1" data-k="benh_an.boltonAnt" value="${esc(ba.boltonAnt||'')}" class="has-unit" placeholder="Trước"><span class="unit">%</span></div><div class="ctl" style="max-width:110px"><input type="number" step="0.1" data-k="benh_an.boltonAll" value="${esc(ba.boltonAll||'')}" class="has-unit" placeholder="Toàn bộ"><span class="unit">%</span></div></div>`)}
@@ -1931,7 +1931,7 @@ function benhAnHTML(p) {
   <div class="ba-subsec" style="margin-top:10px; color:var(--fg2); font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding-bottom:0">Ảnh mẫu hàm</div>
   ${baBigImgBlock(p, 'model', '+ Thêm ảnh mẫu hàm')}`);
 
-  const VI = sec('VI.', 'Phân tích phim X-quang', `
+  const VII = sec('VII.', 'Phân tích phim X-quang', `
   <div class="ba-subsec"><b>Phim toàn cảnh (Panorama)</b></div>
   <table class="ba-tbl">
     ${row('Ngày chụp', `<input type="date" data-k="benh_an.panoDate" value="${esc(ba.panoDate||'')}" style="border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)">`)}
@@ -1950,20 +1950,20 @@ function benhAnHTML(p) {
     ${row('Nhận xét cephalometric', area('cephConclusion', 'Tóm tắt tương quan xương, vị trí răng, mô mềm…', 3))}
   </table>`);
 
-  const VII = sec('VII.', 'Tóm tắt vấn đề', `<table class="ba-tbl">
+  const VIII = sec('VIII.', 'Tóm tắt vấn đề', `<table class="ba-tbl">
     ${row('Vấn đề xương', area('probSkel', 'Xương loại II/III, hàm trên nhô, góc mở…', 3))}
     ${row('Vấn đề răng & khớp cắn', area('probDent', 'Chen chúc, cắn hở, cắn ngược, lệch đường giữa…', 3))}
     ${row('Vấn đề mô mềm', area('probSoft', 'Môi nhô, cằm lùi, đường cười…', 2))}
   </table>`);
 
-  const VIII = sec('VIII.', 'Chẩn đoán', `<table class="ba-tbl">
+  const IX = sec('IX.', 'Chẩn đoán', `<table class="ba-tbl">
     ${row('Tương quan xương', `<select data-k="benh_an.diagSkel" style="border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)"><option>—</option><option>Xương loại I</option><option>Xương loại II nhẹ</option><option>Xương loại II nặng</option><option>Xương loại III nhẹ</option><option>Xương loại III nặng</option></select>`)}
     ${row('Chiều đứng', `<select data-k="benh_an.diagVert" style="border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)"><option>—</option><option>Bình thường</option><option>Góc mở (hyperdivergent)</option><option>Góc đóng (hypodivergent)</option></select>`)}
     ${row('Phân loại lệch lạc', `<select data-k="benh_an.diagAngle" style="border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)"><option>—</option><option>Angle I</option><option>Angle II/1</option><option>Angle II/2</option><option>Angle III</option></select>`)}
     ${row('Chẩn đoán chi tiết', area('diagnosis', 'Viết chẩn đoán đầy đủ…', 4))}
   </table>`);
 
-  const IX = sec('IX.', 'Mục tiêu & kế hoạch điều trị', `<table class="ba-tbl">
+  const X = sec('X.', 'Mục tiêu & kế hoạch điều trị', `<table class="ba-tbl">
     ${row('Mục tiêu xương', area('goalSkel', '', 2))}
     ${row('Mục tiêu răng & khớp cắn', area('goalDent', '', 2))}
     ${row('Mục tiêu mô mềm', area('goalSoft', '', 2))}
@@ -1975,7 +1975,7 @@ function benhAnHTML(p) {
     ${row('Ghi chú thêm', area('planNotes', '', 2))}
   </table>`);
 
-  return `<div class="ba-wrap">${syncBanner}${I}${II}${III}${IV}${V}${VI}${VII}${VIII}${IX}</div>`;
+  return `<div class="ba-wrap">${syncBanner}${I}${II}${III}${IV}${V}${VI}${VII}${VIII}${IX}${X}</div>`;
 }
 
 /* ───────────── Record view ───────────── */
@@ -3380,6 +3380,11 @@ function switchTab(k) {
   S.tab = k;
   $$('[role="tab"]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === k)));
   $$('[role="tabpanel"]').forEach(p => { p.hidden = p.id !== 'panel-' + k; });
+  /* Re-render benh_an panel on switch so image blocks reflect loaded state */
+  if (k === 'benh_an') {
+    const p = Store.get(S.pid);
+    if (p) { const el = document.getElementById('panel-benh_an'); if (el) el.innerHTML = benhAnHTML(p); }
+  }
 }
 
 /* ───────────── Record form ───────────── */
