@@ -2265,7 +2265,33 @@ const DOCX = (() => {
     body += H1('II. LÝ DO ĐẾN KHÁM') + P(p.chiefComplaint || '—');
     body += H1('III. TIỀN SỬ') + fields(p, SCHEMA.info[2].f);
     body += H1('IV. KHÁM LÂM SÀNG');
-    SCHEMA.exam.forEach((s, i) => { body += H2(`${i + 1}. ${s.h}`) + fields(p, s.f); });
+    /* For Word: add inline photos after each exam section */
+    const addInlinePhotos = async (group, label) => {
+      const photos = (imgs || []).filter(m => m.set === 'initial' && (KIND[m.kind] || {}).g === group).sort(byDate);
+      if (!photos.length) return;
+      body += P(label, { b: 1, sz: 22, after: 80, color: '4E5D74' });
+      const imgW = Math.floor((W - 300) / 2);
+      for (let i = 0; i < photos.length; i += 2) {
+        const pair = await Promise.all(photos.slice(i, i + 2).map(async m => {
+          let d; try { d = await Store.imageData(m); } catch (e) { return ''; }
+          const r = await reencode(d, 900, 0.82);
+          n++; const rid = 'rIdImg' + n;
+          media.push({ name: `image${n}.jpeg`, rid, b64: r.data.split(',')[1] });
+          const wTw = imgW, hTw = Math.round(wTw * r.h / r.w);
+          const maxH = 5500; const k = hTw > maxH ? maxH / hTw : 1;
+          return image(rid, n, Math.round(wTw * k * EMU), Math.round(hTw * k * EMU), kindLabel(m.kind))
+            + P(`${kindLabel(m.kind)}`, { align: 'center', sz: 18, i: 1, after: 60 });
+        }));
+        body += table([[pair[0] || '', pair[1] || '']], [W / 2, W / 2], { noBorder: true });
+      }
+    };
+    let n = 0;
+    for (let i = 0; i < SCHEMA.exam.length; i++) {
+      const s = SCHEMA.exam[i];
+      body += H2(`${i + 1}. ${s.h}`) + fields(p, s.f);
+      if (s.h === 'Khám ngoài mặt') await addInlinePhotos('ex', 'Ảnh khám ngoài mặt:');
+      else if (s.h === 'Khớp cắn') await addInlinePhotos('in', 'Ảnh khám trong miệng:');
+    }
 
     body += H1('V. CẬN LÂM SÀNG') + H2('1. Phim X-quang') + fields(p, SCHEMA.xray[0].f);
     body += H2('2. Phân tích phim sọ nghiêng');
@@ -2288,7 +2314,7 @@ const DOCX = (() => {
     body += H2('Khí cụ') + fields(p, SCHEMA.plan[2].f);
     body += H2('Sơ đồ răng (FDI)');
     const t = p.teeth || {}, cw = Math.floor(W / 16);
-    const trow = ids => ids.map(n => tp(n, { b: 1, align: 'center', sz: 20 }) + tp(t[n] ? TSTATE[t[n]].s : '', { align: 'center', sz: 18, color: t[n] === 'extract' ? 'C2412D' : '4E5D74' }));
+    const trow = ids => ids.map(tid => tp(tid, { b: 1, align: 'center', sz: 20 }) + tp(t[tid] ? TSTATE[t[tid]].s : '', { align: 'center', sz: 18, color: t[tid] === 'extract' ? 'C2412D' : '4E5D74' }));
     body += table([trow(UPPER), trow(LOWER)], Array(16).fill(cw));
     body += P('Ký hiệu: ' + Object.values(TSTATE).map(s => `${s.s} = ${s.l.toLowerCase()}`).join('; ') + '. Hàng trên là hàm trên, bên trái bảng là bên phải bệnh nhân.', { sz: 20, i: 1 });
 
@@ -2304,7 +2330,7 @@ const DOCX = (() => {
 
     if (imgs && imgs.length) {
       body += H1('IX. HÌNH ẢNH VÀ PHIM');
-      let n = 0;
+      /* n continues from section IV inline photos */
       for (const g of setGroups(p, imgs)) {
         body += H2(`${setLabel(p, g.set)}${g.date && !g.set.startsWith('v:') ? ' (' + fmtD(g.date) + ')' : ''}`);
         const films = g.items.filter(m => isFilm(m.kind)), photos = g.items.filter(m => !isFilm(m.kind));
@@ -2595,92 +2621,85 @@ async function buildDeck(p, imgs) {
       { x: 8.6, y: 2.15, w: 4.2, h: 4.3, fontFace: SF, fontSize: 14, color: SC.ink, valign: 'top', margin: 0, paraSpaceAfter: 6 });
   }
 
+  /* Helper: render a two-column exam slide (findings left, photos right) */
+  const examSlide = async (title, findings, photos, bgColor, diagText) => {
+    const s = pres.addSlide({ masterName: 'BODY' });
+    head(s, title);
+    /* Left panel: findings list — narrower (4.0") to give more room for photos */
+    const LW = 4.0, LX = 0.6, PHOTO_X = 4.9, PHOTO_W = 8.05, PHOTO_Y = 1.72, PHOTO_H = 5.35;
+    if (findings.length) {
+      const rowH = Math.min(0.72, (PHOTO_H - 0.6) / findings.length);
+      box(s, LX, PHOTO_Y, LW, findings.length * rowH + 0.3, bgColor);
+      findings.forEach(([k, v], i) => {
+        const fy = PHOTO_Y + 0.14 + i * rowH;
+        s.addText(k, { x: LX + 0.2, y: fy, w: 1.7, h: rowH - 0.08, fontFace: SF, fontSize: 11, color: SC.fg2, margin: 0, valign: 'middle' });
+        s.addText(v, { x: LX + 1.95, y: fy, w: LW - 2.15, h: rowH - 0.08, fontFace: SF, fontSize: 12, bold: true, color: SC.blueD, margin: 0, valign: 'middle', fit: 'shrink' });
+      });
+    } else {
+      s.addText('Chưa có dữ liệu.', { x: LX, y: 2.5, w: LW, h: 1.0, fontFace: SF, fontSize: 14, color: SC.muted, margin: 0, valign: 'middle' });
+    }
+    /* Diagnosis / summary box below findings */
+    if (diagText) {
+      const fyBot = findings.length ? PHOTO_Y + findings.length * Math.min(0.72, (PHOTO_H - 0.6) / findings.length) + 0.45 : PHOTO_Y + 0.5;
+      const boxH = Math.min(1.4, 7.1 - fyBot);
+      if (boxH > 0.4) {
+        box(s, LX, fyBot, LW, boxH, SC.apricotSoft || 'FFF3E0');
+        s.addText('Chẩn đoán', { x: LX + 0.15, y: fyBot + 0.08, w: LW - 0.3, h: 0.28, fontFace: SF, fontSize: 11, bold: true, color: SC.apricotInk || 'C2591A', margin: 0 });
+        s.addText(diagText, { x: LX + 0.15, y: fyBot + 0.36, w: LW - 0.3, h: boxH - 0.44, fontFace: SF, fontSize: 12, color: SC.ink, margin: 0, valign: 'top' });
+      }
+    }
+    /* Right panel: photos — larger area */
+    if (photos.length) {
+      const cols = photos.length > 4 ? Math.min(4, photos.length) : (photos.length > 2 ? Math.min(3, photos.length) : photos.length);
+      const rows = Math.ceil(photos.length / cols);
+      const cw = PHOTO_W / cols, ch = PHOTO_H / rows;
+      for (let i = 0; i < photos.length; i++) {
+        const m = photos[i], r = await imgData(m, 1100); if (!r) continue;
+        const cx = PHOTO_X + (i % cols) * cw, cy = PHOTO_Y + Math.floor(i / cols) * ch;
+        const f = fitBox(r.w, r.h, cw - 0.12, ch - 0.32);
+        s.addImage({ data: r.data, x: cx + (cw - f.w) / 2, y: cy + (ch - 0.28 - f.h) / 2, w: f.w, h: f.h });
+        s.addText(kindLabel(m.kind), { x: cx, y: cy + ch - 0.28, w: cw, h: 0.26, fontFace: SF, fontSize: 9, color: SC.fg2, align: 'center', margin: 0 });
+      }
+    } else {
+      s.addText('Chưa có ảnh.', { x: PHOTO_X, y: 3.8, w: PHOTO_W, h: 0.6, fontFace: SF, fontSize: 15, color: SC.muted, align: 'center', margin: 0 });
+    }
+  };
+
   /* 3a. Khám ngoài mặt */
   const exPhotos = initial.filter(m => (KIND[m.kind] || {}).g === 'ex').slice(0, 8);
   {
-    const ba = p.benh_an || {};
-    const s = pres.addSlide({ masterName: 'BODY' });
-    head(s, 'Khám ngoài mặt');
-    /* Left panel: findings */
+    const ba = p.benh_an || {}, c = p.clinical || {};
     const exFindings = [
-      ba.faceShape ? ['Dạng mặt', ba.faceShape] : null,
+      (ba.faceShape || c.faceType) ? ['Dạng mặt', ba.faceShape || c.faceType] : null,
       ba.faceSymm ? ['Cân xứng mặt', ba.faceSymm] : null,
-      ba.lipTone ? ['Trương lực môi', ba.lipTone] : null,
-      ba.lipGap != null && ba.lipGap !== '' ? ['Hở môi lúc nghỉ', ba.lipGap + ' mm'] : null,
-      ba.gingivalDisplay != null && ba.gingivalDisplay !== '' ? ['Hở lợi khi cười', ba.gingivalDisplay + ' mm'] : null,
-      ba.smileLine ? ['Đường cười', ba.smileLine] : null,
-      p.clinical?.profile ? ['Nhìn nghiêng', p.clinical.profile] : null,
+      (ba.lipTone || c.lipSeal) ? ['Môi khi nghỉ', ba.lipTone || c.lipSeal] : null,
+      ba.lipGap != null && ba.lipGap !== '' ? ['Hở môi nghỉ', ba.lipGap + ' mm'] : null,
+      (ba.gingivalDisplay != null && ba.gingivalDisplay !== '') ? ['Hở lợi cười', ba.gingivalDisplay + ' mm'] : (c.gummy != null && c.gummy !== '' ? ['Hở lợi cười', c.gummy + ' mm'] : null),
+      (ba.smileLine || c.smileLine) ? ['Đường cười', ba.smileLine || c.smileLine] : null,
+      (c.profile) ? ['Nhìn nghiêng', c.profile] : null,
+      (c.lipPos && c.lipPos !== 'Cân đối') ? ['Vị trí môi', c.lipPos] : null,
     ].filter(Boolean);
-    if (exFindings.length) {
-      box(s, 0.6, 1.75, 5.8, exFindings.length * 0.72 + 0.3, SC.appleSoft);
-      exFindings.forEach(([k, v], i) => {
-        const fy = 1.88 + i * 0.72;
-        s.addText(k, { x: 0.85, y: fy, w: 2.4, h: 0.38, fontFace: SF, fontSize: 13, color: SC.fg2, margin: 0, valign: 'middle' });
-        s.addText(v, { x: 3.3, y: fy, w: 2.85, h: 0.38, fontFace: SF, fontSize: 14, bold: true, color: SC.blueD, margin: 0, valign: 'middle' });
-      });
-    } else {
-      s.addText('Chưa có dữ liệu khám ngoài mặt.', { x: 0.6, y: 2.5, w: 5.8, h: 1.0, fontFace: SF, fontSize: 15, color: SC.muted, margin: 0, valign: 'middle' });
-    }
-    /* Right panel: ex photos grid */
-    if (exPhotos.length) {
-      const cols = exPhotos.length > 3 ? Math.min(4, exPhotos.length) : exPhotos.length;
-      const rows = Math.ceil(exPhotos.length / cols);
-      const cw = 6.3 / cols, ch = 5.0 / rows;
-      for (let i = 0; i < exPhotos.length; i++) {
-        const m = exPhotos[i], r = await imgData(m, 900); if (!r) continue;
-        const cx = 6.9 + (i % cols) * cw, cy = 1.75 + Math.floor(i / cols) * ch;
-        const f = fitBox(r.w, r.h, cw - 0.15, ch - 0.38);
-        s.addImage({ data: r.data, x: cx + (cw - f.w) / 2, y: cy, w: f.w, h: f.h });
-        s.addText(kindLabel(m.kind), { x: cx, y: cy + f.h + 0.04, w: cw, h: 0.28, fontFace: SF, fontSize: 10, color: SC.fg2, align: 'center', margin: 0 });
-      }
-    } else {
-      s.addText('Chưa có ảnh ngoài mặt.', { x: 6.9, y: 3.5, w: 6.0, h: 0.6, fontFace: SF, fontSize: 15, color: SC.muted, align: 'center', margin: 0 });
-    }
+    const diagText = (p.benh_an?.exConclusion) || (p.plan?.extraoralSummary) || '';
+    await examSlide('Khám ngoài mặt', exFindings, exPhotos, SC.appleSoft, diagText);
   }
 
   /* 3b. Khám trong miệng */
   const inPhotos = initial.filter(m => (KIND[m.kind] || {}).g === 'in').slice(0, 8);
   {
-    const ba = p.benh_an || {};
-    const s = pres.addSlide({ masterName: 'BODY' });
-    head(s, 'Khám trong miệng');
-    /* Left panel: findings */
+    const ba = p.benh_an || {}, c = p.clinical || {};
     const inFindings = [
-      ba.hygiene ? ['Vệ sinh răng miệng', ba.hygiene] : null,
-      ba.gingiva ? ['Nướu', ba.gingiva] : null,
-      ba.angle ? ['Khớp cắn (Angle)', ba.angle] : null,
-      ba.oj != null && ba.oj !== '' ? ['Độ chìa (OJ)', ba.oj + ' mm'] : null,
-      ba.ob != null && ba.ob !== '' ? ['Độ phủ (OB)', ba.ob + ' mm'] : null,
-      (ba.crowdU != null && ba.crowdU !== '') || (ba.crowdL != null && ba.crowdL !== '') ? ['Chen chúc', `Trên ${ba.crowdU ?? '–'} mm, dưới ${ba.crowdL ?? '–'} mm`] : null,
+      (ba.hygiene || c.hygiene) ? ['Vệ sinh răng miệng', ba.hygiene || c.hygiene] : null,
+      (ba.gingiva || c.perio) ? ['Nướu', ba.gingiva || c.perio] : null,
+      (ba.angle || c.angle) ? ['Khớp cắn (Angle)', ba.angle || c.angle] : null,
+      (ba.oj != null && ba.oj !== '') ? ['Độ chìa (OJ)', ba.oj + ' mm'] : (c.overjet != null && c.overjet !== '' ? ['Độ chìa (OJ)', c.overjet + ' mm'] : null),
+      (ba.ob != null && ba.ob !== '') ? ['Độ phủ (OB)', ba.ob + ' mm'] : (c.overbite != null && c.overbite !== '' ? ['Độ phủ (OB)', c.overbite + ' mm'] : null),
+      (ba.crowdU != null && ba.crowdU !== '') || (ba.crowdL != null && ba.crowdL !== '') ? ['Chen chúc', `T: ${ba.crowdU ?? '–'} mm, D: ${ba.crowdL ?? '–'} mm`] : (c.crowdU || c.crowdL ? ['Chen chúc', `T: ${c.crowdU ?? '–'} mm, D: ${c.crowdL ?? '–'} mm`] : null),
       (ba.midlineU && ba.midlineU !== 'Trùng') || (ba.midlineL && ba.midlineL !== 'Trùng') ? ['Đường giữa', [ba.midlineU && ba.midlineU !== 'Trùng' ? `Trên: ${ba.midlineU}` : '', ba.midlineL && ba.midlineL !== 'Trùng' ? `Dưới: ${ba.midlineL}` : ''].filter(Boolean).join(', ')] : null,
-      (ba.molarR || ba.molarL) ? ['Tương quan cối', [ba.molarR ? `P: ${ba.molarR}` : '', ba.molarL ? `T: ${ba.molarL}` : ''].filter(Boolean).join(', ')] : null,
-      (ba.canineR || ba.canineL) ? ['Tương quan nanh', [ba.canineR ? `P: ${ba.canineR}` : '', ba.canineL ? `T: ${ba.canineL}` : ''].filter(Boolean).join(', ')] : null,
+      (ba.molarR || ba.molarL || c.molarR || c.molarL) ? ['T/q cối', [ba.molarR || c.molarR ? `P: ${ba.molarR || c.molarR}` : '', ba.molarL || c.molarL ? `T: ${ba.molarL || c.molarL}` : ''].filter(Boolean).join(', ')] : null,
+      (ba.canineR || ba.canineL || c.canineR || c.canineL) ? ['T/q nanh', [ba.canineR || c.canineR ? `P: ${ba.canineR || c.canineR}` : '', ba.canineL || c.canineL ? `T: ${ba.canineL || c.canineL}` : ''].filter(Boolean).join(', ')] : null,
     ].filter(Boolean);
-    if (inFindings.length) {
-      box(s, 0.6, 1.75, 5.8, inFindings.length * 0.68 + 0.3, SC.blueSoft);
-      inFindings.forEach(([k, v], i) => {
-        const fy = 1.88 + i * 0.68;
-        s.addText(k, { x: 0.85, y: fy, w: 2.5, h: 0.36, fontFace: SF, fontSize: 12, color: SC.fg2, margin: 0, valign: 'middle' });
-        s.addText(String(v), { x: 3.4, y: fy, w: 2.75, h: 0.36, fontFace: SF, fontSize: 13, bold: true, color: SC.blueD, margin: 0, valign: 'middle', fit: 'shrink' });
-      });
-    } else {
-      s.addText('Chưa có dữ liệu khám trong miệng.', { x: 0.6, y: 2.5, w: 5.8, h: 1.0, fontFace: SF, fontSize: 15, color: SC.muted, margin: 0, valign: 'middle' });
-    }
-    /* Right panel: in photos grid */
-    if (inPhotos.length) {
-      const cols = inPhotos.length > 3 ? Math.min(4, inPhotos.length) : inPhotos.length;
-      const rows = Math.ceil(inPhotos.length / cols);
-      const cw = 6.3 / cols, ch = 5.0 / rows;
-      for (let i = 0; i < inPhotos.length; i++) {
-        const m = inPhotos[i], r = await imgData(m, 900); if (!r) continue;
-        const cx = 6.9 + (i % cols) * cw, cy = 1.75 + Math.floor(i / cols) * ch;
-        const f = fitBox(r.w, r.h, cw - 0.15, ch - 0.38);
-        s.addImage({ data: r.data, x: cx + (cw - f.w) / 2, y: cy, w: f.w, h: f.h });
-        s.addText(kindLabel(m.kind), { x: cx, y: cy + f.h + 0.04, w: cw, h: 0.28, fontFace: SF, fontSize: 10, color: SC.fg2, align: 'center', margin: 0 });
-      }
-    } else {
-      s.addText('Chưa có ảnh trong miệng.', { x: 6.9, y: 3.5, w: 6.0, h: 0.6, fontFace: SF, fontSize: 15, color: SC.muted, align: 'center', margin: 0 });
-    }
+    const diagText = (p.benh_an?.inConclusion) || (p.plan?.intraoralSummary) || '';
+    await examSlide('Khám trong miệng', inFindings, inPhotos, SC.blueSoft, diagText);
   }
 
   /* 4. Phim ban đầu */
