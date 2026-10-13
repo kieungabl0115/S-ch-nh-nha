@@ -1751,12 +1751,94 @@ function baBigImgBlock(p, group, addLabel) {
   return `<div style="padding:2px 0">${btn}<div class="igrid" style="padding:0 14px 12px">${imgs.map(m => tile(m, p)).join('')}</div></div>`;
 }
 
+/* Pull data from p / p.clinical / p.plan into p.benh_an fields then re-render */
+function syncBenhAn() {
+  const p = Store.get(S.pid); if (!p) return;
+  const c = p.clinical || {}, pl = p.plan || {};
+  const ba = p.benh_an || {};
+  // Hành chính — from top-level p
+  const sync = {
+    name:       ba.name      || p.name       || '',
+    dob:        ba.dob       || p.dob        || '',
+    gender:     ba.gender    || p.gender     || '',
+    phone:      ba.phone     || p.phone      || '',
+    doctor:     ba.doctor    || p.doctor     || '',
+    code:       ba.code      || p.code       || '',
+    // Lý do khám
+    chiefComplaint: ba.chiefComplaint || p.chiefComplaint || '',
+    // Tiền sử
+    medHistory:   ba.medHistory   || [p.systemic, p.allergy, p.meds].filter(Boolean).join('; ') || '',
+    dentalHistory: ba.dentalHistory || p.dentalHx || '',
+    habits:       ba.habits       || p.habits   || '',
+    // Khám ngoài mặt (clinical)
+    faceShape:        ba.faceShape        || c.faceShape        || '',
+    faceSymm:         ba.faceSymm         || c.faceSymm         || '',
+    lipTone:          ba.lipTone          || c.lipTone          || '',
+    lipGap:           ba.lipGap           ?? (c.lipGap           ?? ''),
+    gingivalDisplay:  ba.gingivalDisplay  ?? (c.gingivalDisplay  ?? ''),
+    smileLine:        ba.smileLine        || c.smileLine        || '',
+    lipEline:         ba.lipEline         || c.lipPos           || '',
+    extraOther:       ba.extraOther       || c.profile          || '',
+    // Khám trong miệng (clinical)
+    hygiene:   ba.hygiene  || c.hygiene    || '',
+    gingiva:   ba.gingiva  || c.perio      || '',
+    angle:     ba.angle    || c.angle      || '',
+    oj:        ba.oj       ?? (c.overjet    ?? ''),
+    ob:        ba.ob       ?? (c.overbite   ?? ''),
+    midlineU:  ba.midlineU || c.upperMid   || '',
+    midlineL:  ba.midlineL || c.lowerMid   || '',
+    crowdU:    ba.crowdU   ?? (c.crowdU     ?? ''),
+    crowdL:    ba.crowdL   ?? (c.crowdL     ?? ''),
+    canineR:   ba.canineR  || c.canineR    || '',
+    canineL:   ba.canineL  || c.canineL    || '',
+    molarR:    ba.molarR   || c.molarR     || '',
+    molarL:    ba.molarL   || c.molarL     || '',
+    specialBite: ba.specialBite || c.crossbite || '',
+    tmj:         ba.tmj         || p.tmj        || '',
+    // Chẩn đoán (plan)
+    diagSkel:  ba.diagSkel  || pl.skeletal  || '',
+    diagVert:  ba.diagVert  || pl.vertical  || '',
+    diagAngle: ba.diagAngle || pl.dental    || '',
+    diagnosis: ba.diagnosis || pl.diagnosis || '',
+    // Kế hoạch
+    goalSkel:   ba.goalSkel   || '',
+    goalDent:   ba.goalDent   || '',
+    goalSoft:   ba.goalSoft   || '',
+    approach:   ba.approach   || pl.approach   || '',
+    extractions:ba.extractions|| pl.extractions|| '',
+    planDetail: ba.planDetail || pl.plan       || '',
+    duration:   ba.duration   ?? (pl.duration  ?? ''),
+    retention:  ba.retention  || pl.retention  || '',
+    planNotes:  ba.planNotes  || pl.notes      || '',
+    probSkel:   ba.probSkel   || pl.problems   || '',
+    probDent:   ba.probDent   || '',
+    probSoft:   ba.probSoft   || '',
+  };
+  // Overwrite only — don't blank fields the user already filled
+  const merged = { ...ba };
+  for (const [k, v] of Object.entries(sync)) {
+    if (v !== '' && v !== null && v !== undefined) merged[k] = v;
+  }
+  // Apply to DOM fields
+  $$('#view [data-k^="benh_an."]').forEach(el => {
+    const key = el.dataset.k.replace('benh_an.', '');
+    if (merged[key] !== undefined) el.value = merged[key] ?? '';
+  });
+  showSavebar();
+  toast('Đã đồng bộ dữ liệu từ hồ sơ vào bệnh án.');
+}
+
 function benhAnHTML(p) {
   const ba = p.benh_an || {};
   const tx = (k, ph) => `<input type="text" data-k="benh_an.${k}" value="${esc(ba[k] || '')}" placeholder="${esc(ph || '')}" style="width:100%;border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)">`;
   const area = (k, ph, rows) => `<textarea data-k="benh_an.${k}" rows="${rows||3}" placeholder="${esc(ph||'')}" style="width:100%;border:1px solid var(--line2);border-radius:4px;padding:6px 8px;resize:vertical;background:var(--surface)">${esc(ba[k]||'')}</textarea>`;
   const row = (label, field) => `<tr><td class="ba-lbl">${esc(label)}</td><td class="ba-val">${field}</td></tr>`;
   const sec = (num, title, content) => `<section class="sec ba-sec"><h3 class="ba-h3"><span class="ba-num">${num}</span>${title}</h3><div class="body">${content}</div></section>`;
+
+  const syncBanner = `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--apple-soft,#f1e7d8);border:1px solid var(--apple,#dcc7aa);border-radius:8px;padding:10px 16px;margin-bottom:16px">
+    <span style="font-size:13px;color:var(--fg2)">Bệnh án tổng hợp thông tin từ tất cả các tab. Nhấn để cập nhật dữ liệu mới nhất từ hồ sơ.</span>
+    <button class="btn btn-quiet btn-sm" type="button" data-act="sync-benh-an" style="white-space:nowrap;flex-shrink:0">↻ Đồng bộ từ hồ sơ</button>
+  </div>`;
 
   // Cephalometric table (20 chỉ số)
   const cephGroups = [];
@@ -1893,7 +1975,7 @@ function benhAnHTML(p) {
     ${row('Ghi chú thêm', area('planNotes', '', 2))}
   </table>`);
 
-  return `<div class="ba-wrap">${I}${II}${III}${IV}${V}${VI}${VII}${VIII}${IX}</div>`;
+  return `<div class="ba-wrap">${syncBanner}${I}${II}${III}${IV}${V}${VI}${VII}${VIII}${IX}</div>`;
 }
 
 /* ───────────── Record view ───────────── */
@@ -3417,6 +3499,7 @@ document.addEventListener('click', async e => {
     }
     case 'save': return saveForm();
     case 'discard': S.dirty = false; hideSavebar(); render(); return;
+    case 'sync-benh-an': return syncBenhAn();
     case 'visit-new': return visitDlg();
     case 'vd-save': return saveVisit();
     case 'up-go': return doUpload();
