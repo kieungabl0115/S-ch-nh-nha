@@ -2513,20 +2513,91 @@ async function buildDeck(p, imgs) {
       { x: 8.6, y: 2.15, w: 4.2, h: 4.3, fontFace: SF, fontSize: 14, color: SC.ink, valign: 'top', margin: 0, paraSpaceAfter: 6 });
   }
 
-  /* 3. Ảnh ban đầu */
-  const photoKinds = ['ex_front', 'ex_smile', 'ex_profile', 'ex_45', 'in_right', 'in_front', 'in_left', 'in_upper', 'in_lower', 'in_oj'];
-  const photos = photoKinds.map(latest).filter(Boolean).slice(0, 8);
-  if (photos.length) {
+  /* 3a. Khám ngoài mặt */
+  const exPhotos = initial.filter(m => (KIND[m.kind] || {}).g === 'ex').slice(0, 8);
+  {
+    const ba = p.benh_an || {};
     const s = pres.addSlide({ masterName: 'BODY' });
-    head(s, 'Hình ảnh ban đầu', `Chụp ngày ${fmtD(photos[0].date)}`);
-    const cols = photos.length > 4 ? 4 : photos.length, rows = Math.ceil(photos.length / cols);
-    const cw = 12.1 / cols, ch = (5.25 / rows);
-    for (let i = 0; i < photos.length; i++) {
-      const m = photos[i], r = await imgData(m, 1000); if (!r) continue;
-      const cx = 0.6 + (i % cols) * cw, cy = 1.75 + Math.floor(i / cols) * ch;
-      const f = fitBox(r.w, r.h, cw - 0.2, ch - 0.5);
-      s.addImage({ data: r.data, x: cx + (cw - f.w) / 2, y: cy, w: f.w, h: f.h });
-      s.addText(kindLabel(m.kind), { x: cx, y: cy + f.h + 0.04, w: cw, h: 0.3, fontFace: SF, fontSize: 11, color: SC.fg2, align: 'center', margin: 0 });
+    head(s, 'Khám ngoài mặt');
+    /* Left panel: findings */
+    const exFindings = [
+      ba.faceShape ? ['Dạng mặt', ba.faceShape] : null,
+      ba.faceSymm ? ['Cân xứng mặt', ba.faceSymm] : null,
+      ba.lipTone ? ['Trương lực môi', ba.lipTone] : null,
+      ba.lipGap != null && ba.lipGap !== '' ? ['Hở môi lúc nghỉ', ba.lipGap + ' mm'] : null,
+      ba.gingivalDisplay != null && ba.gingivalDisplay !== '' ? ['Hở lợi khi cười', ba.gingivalDisplay + ' mm'] : null,
+      ba.smileLine ? ['Đường cười', ba.smileLine] : null,
+      p.clinical?.profile ? ['Nhìn nghiêng', p.clinical.profile] : null,
+    ].filter(Boolean);
+    if (exFindings.length) {
+      box(s, 0.6, 1.75, 5.8, exFindings.length * 0.72 + 0.3, SC.appleSoft);
+      exFindings.forEach(([k, v], i) => {
+        const fy = 1.88 + i * 0.72;
+        s.addText(k, { x: 0.85, y: fy, w: 2.4, h: 0.38, fontFace: SF, fontSize: 13, color: SC.fg2, margin: 0, valign: 'middle' });
+        s.addText(v, { x: 3.3, y: fy, w: 2.85, h: 0.38, fontFace: SF, fontSize: 14, bold: true, color: SC.blueD, margin: 0, valign: 'middle' });
+      });
+    } else {
+      s.addText('Chưa có dữ liệu khám ngoài mặt.', { x: 0.6, y: 2.5, w: 5.8, h: 1.0, fontFace: SF, fontSize: 15, color: SC.muted, margin: 0, valign: 'middle' });
+    }
+    /* Right panel: ex photos grid */
+    if (exPhotos.length) {
+      const cols = exPhotos.length > 3 ? Math.min(4, exPhotos.length) : exPhotos.length;
+      const rows = Math.ceil(exPhotos.length / cols);
+      const cw = 6.3 / cols, ch = 5.0 / rows;
+      for (let i = 0; i < exPhotos.length; i++) {
+        const m = exPhotos[i], r = await imgData(m, 900); if (!r) continue;
+        const cx = 6.9 + (i % cols) * cw, cy = 1.75 + Math.floor(i / cols) * ch;
+        const f = fitBox(r.w, r.h, cw - 0.15, ch - 0.38);
+        s.addImage({ data: r.data, x: cx + (cw - f.w) / 2, y: cy, w: f.w, h: f.h });
+        s.addText(kindLabel(m.kind), { x: cx, y: cy + f.h + 0.04, w: cw, h: 0.28, fontFace: SF, fontSize: 10, color: SC.fg2, align: 'center', margin: 0 });
+      }
+    } else {
+      s.addText('Chưa có ảnh ngoài mặt.', { x: 6.9, y: 3.5, w: 6.0, h: 0.6, fontFace: SF, fontSize: 15, color: SC.muted, align: 'center', margin: 0 });
+    }
+  }
+
+  /* 3b. Khám trong miệng */
+  const inPhotos = initial.filter(m => (KIND[m.kind] || {}).g === 'in').slice(0, 8);
+  {
+    const ba = p.benh_an || {};
+    const s = pres.addSlide({ masterName: 'BODY' });
+    head(s, 'Khám trong miệng');
+    /* Left panel: findings */
+    const inFindings = [
+      ba.hygiene ? ['Vệ sinh răng miệng', ba.hygiene] : null,
+      ba.gingiva ? ['Nướu', ba.gingiva] : null,
+      ba.angle ? ['Khớp cắn (Angle)', ba.angle] : null,
+      ba.oj != null && ba.oj !== '' ? ['Độ chìa (OJ)', ba.oj + ' mm'] : null,
+      ba.ob != null && ba.ob !== '' ? ['Độ phủ (OB)', ba.ob + ' mm'] : null,
+      (ba.crowdU != null && ba.crowdU !== '') || (ba.crowdL != null && ba.crowdL !== '') ? ['Chen chúc', `Trên ${ba.crowdU ?? '–'} mm, dưới ${ba.crowdL ?? '–'} mm`] : null,
+      (ba.midlineU && ba.midlineU !== 'Trùng') || (ba.midlineL && ba.midlineL !== 'Trùng') ? ['Đường giữa', [ba.midlineU && ba.midlineU !== 'Trùng' ? `Trên: ${ba.midlineU}` : '', ba.midlineL && ba.midlineL !== 'Trùng' ? `Dưới: ${ba.midlineL}` : ''].filter(Boolean).join(', ')] : null,
+      (ba.molarR || ba.molarL) ? ['Tương quan cối', [ba.molarR ? `P: ${ba.molarR}` : '', ba.molarL ? `T: ${ba.molarL}` : ''].filter(Boolean).join(', ')] : null,
+      (ba.canineR || ba.canineL) ? ['Tương quan nanh', [ba.canineR ? `P: ${ba.canineR}` : '', ba.canineL ? `T: ${ba.canineL}` : ''].filter(Boolean).join(', ')] : null,
+    ].filter(Boolean);
+    if (inFindings.length) {
+      box(s, 0.6, 1.75, 5.8, inFindings.length * 0.68 + 0.3, SC.blueSoft);
+      inFindings.forEach(([k, v], i) => {
+        const fy = 1.88 + i * 0.68;
+        s.addText(k, { x: 0.85, y: fy, w: 2.5, h: 0.36, fontFace: SF, fontSize: 12, color: SC.fg2, margin: 0, valign: 'middle' });
+        s.addText(String(v), { x: 3.4, y: fy, w: 2.75, h: 0.36, fontFace: SF, fontSize: 13, bold: true, color: SC.blueD, margin: 0, valign: 'middle', fit: 'shrink' });
+      });
+    } else {
+      s.addText('Chưa có dữ liệu khám trong miệng.', { x: 0.6, y: 2.5, w: 5.8, h: 1.0, fontFace: SF, fontSize: 15, color: SC.muted, margin: 0, valign: 'middle' });
+    }
+    /* Right panel: in photos grid */
+    if (inPhotos.length) {
+      const cols = inPhotos.length > 3 ? Math.min(4, inPhotos.length) : inPhotos.length;
+      const rows = Math.ceil(inPhotos.length / cols);
+      const cw = 6.3 / cols, ch = 5.0 / rows;
+      for (let i = 0; i < inPhotos.length; i++) {
+        const m = inPhotos[i], r = await imgData(m, 900); if (!r) continue;
+        const cx = 6.9 + (i % cols) * cw, cy = 1.75 + Math.floor(i / cols) * ch;
+        const f = fitBox(r.w, r.h, cw - 0.15, ch - 0.38);
+        s.addImage({ data: r.data, x: cx + (cw - f.w) / 2, y: cy, w: f.w, h: f.h });
+        s.addText(kindLabel(m.kind), { x: cx, y: cy + f.h + 0.04, w: cw, h: 0.28, fontFace: SF, fontSize: 10, color: SC.fg2, align: 'center', margin: 0 });
+      }
+    } else {
+      s.addText('Chưa có ảnh trong miệng.', { x: 6.9, y: 3.5, w: 6.0, h: 0.6, fontFace: SF, fontSize: 15, color: SC.muted, align: 'center', margin: 0 });
     }
   }
 
