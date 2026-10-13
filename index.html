@@ -857,46 +857,50 @@ const SCHEMA = {
 /* Cephalometric norms (Steiner + Harvold + dental + soft tissue) — 20 chỉ số */
 const CEPH = [
   /* ── Nhóm 1: Xương nền sọ (Steiner) ── */
-  { k: 'sna',    l: 'SNA',             u: '°',  n: 82,   sd: 2,  g: 'Xương nền sọ',       d: 'Vị trí xương hàm trên so với nền sọ' },
-  { k: 'snb',    l: 'SNB',             u: '°',  n: 80,   sd: 2,  g: 'Xương nền sọ',       d: 'Vị trí xương hàm dưới so với nền sọ' },
-  { k: 'anb',    l: 'ANB',             u: '°',  n: 2,    sd: 2,  g: 'Xương nền sọ',       d: 'Tương quan xương hai hàm (SNA − SNB, tự tính)', calc: 1 },
-  { k: 'snd',    l: 'SND',             u: '°',  n: 76,   sd: 3,  g: 'Xương nền sọ',       d: 'Harvold — vị trí cằm so với nền sọ' },
+  { k: 'sna',    l: 'SNA',                    u: '°',  n: 82,   sd: 2,   g: 'Xương nền sọ',       d: 'Vị trí xương hàm trên so với nền sọ' },
+  { k: 'snb',    l: 'SNB',                    u: '°',  n: 80,   sd: 2,   g: 'Xương nền sọ',       d: 'Vị trí xương hàm dưới so với nền sọ' },
+  { k: 'anb',    l: 'ANB',                    u: '°',  n: 2,    sd: 2,   g: 'Xương nền sọ',       d: 'Tương quan xương hai hàm (SNA − SNB, tự tính)', calc: 1 },
+  { k: 'snd',    l: 'SND',                    u: '°',  n: 76,   sd: 3,   g: 'Xương nền sọ',       d: 'Harvold — vị trí cằm so với nền sọ' },
   /* ── Nhóm 2: Tương quan xương (Steiner + Harvold) ── */
-  { k: 'wits',   l: 'Wits',            u: 'mm', n: -1,   sd: 2,  g: 'Tương quan xương',   d: 'Wits appraisal — Nam −1 mm, Nữ 0 mm' },
-  { k: 'se',     l: 'SE (Harvold)',     u: 'mm', n: 22,   sd: 2.5,g: 'Tương quan xương',   d: 'Harvold — chiều dài xương hàm dưới từ S đến E' },
-  { k: 'sl',     l: 'SL (Harvold)',     u: 'mm', n: 51,   sd: 3,  g: 'Tương quan xương',   d: 'Harvold — chiều dài S–Pg (gnathion trên phẳng SN)' },
+  { k: 'wits',   l: 'Wits',                   u: 'mm', n: -1,   sd: 2,   g: 'Tương quan xương',   d: 'Wits appraisal — Nam −1 mm, Nữ 0 mm' },
+  { k: 'se',     l: 'SE (Harvold)',            u: 'mm', n: 22,   sd: 2.5, g: 'Tương quan xương',   d: 'Harvold — khoảng cách S đến E (lồi cầu)' },
+  { k: 'sl',     l: 'SL (Harvold)',            u: 'mm', n: 51,   sd: 3,   g: 'Tương quan xương',   d: 'Harvold — khoảng cách S đến Pg (cằm)' },
+  { k: 'sesl',   l: 'SE + SL',                u: 'mm', n: 73,   sd: 4,   g: 'Tương quan xương',   d: 'Chiều dài hiệu dụng xương hàm dưới (SE + SL, tự tính)', calc: 2 },
   /* ── Nhóm 3: Chiều đứng ── */
-  { k: 'fma',    l: 'FMA',             u: '°',  n: 25,   sd: 5,  g: 'Chiều đứng',         d: 'Frankfort – mặt phẳng hàm dưới (Tweed)' },
-  { k: 'sngogn', l: 'SN-GoGn',         u: '°',  n: 32,   sd: 5,  g: 'Chiều đứng',         d: 'Góc mặt phẳng nền sọ – hàm dưới (Steiner)' },
-  { k: 'yaxis',  l: 'Trục Y (Y-axis)', u: '°',  n: 59,   sd: 3,  g: 'Chiều đứng',         d: 'Hướng phát triển mặt — S–Gn với Frankfort' },
-  /* ── Nhóm 4: Răng trên ── */
-  { k: 'u1sn',   l: 'U1-SN',           u: '°',  n: 103,  sd: 6,  g: 'Răng cửa trên',      d: 'Độ nghiêng trục răng cửa trên với nền sọ (Steiner)' },
-  { k: 'u1na_a', l: 'U1-NA (góc)',     u: '°',  n: 22,   sd: 5,  g: 'Răng cửa trên',      d: 'Góc trục răng cửa trên với đường NA' },
-  { k: 'u1na',   l: 'U1-NA (mm)',      u: 'mm', n: 4,    sd: 2,  g: 'Răng cửa trên',      d: 'Khoảng cách đỉnh răng cửa trên đến đường NA' },
-  /* ── Nhóm 5: Răng dưới ── */
-  { k: 'impa',   l: 'IMPA',            u: '°',  n: 90,   sd: 5,  g: 'Răng cửa dưới',      d: 'Độ nghiêng răng cửa dưới với mặt phẳng hàm dưới (Tweed)' },
-  { k: 'l1nb_a', l: 'L1-NB (góc)',     u: '°',  n: 25,   sd: 5,  g: 'Răng cửa dưới',      d: 'Góc trục răng cửa dưới với đường NB' },
-  { k: 'l1nb',   l: 'L1-NB (mm)',      u: 'mm', n: 4,    sd: 2,  g: 'Răng cửa dưới',      d: 'Khoảng cách đỉnh răng cửa dưới đến đường NB' },
+  { k: 'fma',    l: 'FMA',                    u: '°',  n: 25,   sd: 5,   g: 'Chiều đứng',         d: 'Frankfort – mặt phẳng hàm dưới (Tweed)' },
+  { k: 'sngogn', l: 'SN-GoGn',               u: '°',  n: 32,   sd: 3,   g: 'Chiều đứng',         d: 'Góc mặt phẳng nền sọ – hàm dưới (Steiner)' },
+  { k: 'yaxis',  l: 'Góc trục Y (SGn-FH)',   u: '°',  n: 59,   sd: 6,   g: 'Chiều đứng',         d: 'Hướng phát triển mặt — S–Gn với Frankfort' },
+  /* ── Nhóm 4: Răng cửa trên ── */
+  { k: 'u1sn',   l: 'U1-SN',                  u: '°',  n: 103,  sd: 6,   g: 'Răng cửa trên',      d: 'Độ nghiêng trục răng cửa trên với nền sọ (Steiner)' },
+  { k: 'u1na_a', l: 'Góc răng cửa hàm trên (U1-NA)', u: '°', n: 22, sd: 5, g: 'Răng cửa trên', d: 'Góc trục răng cửa trên với đường NA' },
+  { k: 'u1na',   l: 'U1-NA (mm)',              u: 'mm', n: 4,    sd: 2,   g: 'Răng cửa trên',      d: 'Khoảng cách đỉnh răng cửa trên đến đường NA' },
+  /* ── Nhóm 5: Răng cửa dưới ── */
+  { k: 'impa',   l: 'IMPA',                   u: '°',  n: 90,   sd: 5,   g: 'Răng cửa dưới',      d: 'Độ nghiêng răng cửa dưới với mặt phẳng hàm dưới (Tweed)' },
+  { k: 'l1nb_a', l: 'Góc răng cửa hàm dưới (L1-NB)', u: '°', n: 25, sd: 5, g: 'Răng cửa dưới', d: 'Góc trục răng cửa dưới với đường NB' },
+  { k: 'l1nb',   l: 'L1-NB (mm)',              u: 'mm', n: 4,    sd: 2,   g: 'Răng cửa dưới',      d: 'Khoảng cách đỉnh răng cửa dưới đến đường NB' },
   /* ── Nhóm 6: Tương quan hai hàm răng ── */
-  { k: 'ii',     l: 'Góc liên răng cửa', u: '°', n: 130, sd: 6, g: 'Tương quan hai hàm', d: 'Góc giữa trục U1 và L1 (U1–L1)' },
+  { k: 'ii',     l: 'Góc liên răng cửa',      u: '°',  n: 131,  sd: 6,   g: 'Tương quan hai hàm', d: 'Góc giữa trục U1 và L1 (U1–L1)' },
   /* ── Nhóm 7: Mô mềm ── */
-  { k: 'eline',  l: 'Môi dưới – E-line', u: 'mm', n: -2, sd: 2, g: 'Mô mềm',             d: 'Ricketts — khoảng cách môi dưới đến đường thẩm mỹ E' },
-  { k: 'naso',   l: 'Góc mũi-môi',     u: '°',  n: 100,  sd: 10, g: 'Mô mềm',             d: 'Nasolabial angle — 90–110°' },
+  { k: 'elineU', l: 'Môi trên – E-line',      u: 'mm', n: -4,   sd: 2,   g: 'Mô mềm',             d: 'Khoảng cách môi trên đến đường thẩm mỹ E (âm = lùi)' },
+  { k: 'eline',  l: 'Môi dưới – E-line',      u: 'mm', n: -2,   sd: 2,   g: 'Mô mềm',             d: 'Ricketts — khoảng cách môi dưới đến đường thẩm mỹ E' },
+  { k: 'naso',   l: 'Góc mũi-môi',            u: '°',  n: 100,  sd: 10,  g: 'Mô mềm',             d: 'Nasolabial angle — 90–110°' },
   /* ── Nhóm 8: Tăng trưởng ── */
-  { k: 'cvm',    l: 'CVM (giai đoạn)', u: '',   n: 3,    sd: 1,  g: 'Tăng trưởng',        d: 'Cervical Vertebral Maturation — CS1…CS6; đỉnh tăng trưởng ở CS3–CS4', text: 1 }
+  { k: 'cvm',    l: 'CVM (giai đoạn)',         u: '',   n: 3,    sd: 1,   g: 'Tăng trưởng',        d: 'Cervical Vertebral Maturation — CS1…CS6; đỉnh tăng trưởng ở CS3–CS4', text: 1 }
 ];
 function cephVerdict(c, v) {
-  if (c.text) return { cls: '', t: '' }; // CVM etc — text field, no verdict
+  if (c.text) return { cls: '', t: '' };
   if (v === null) return { cls: '', t: '' };
   const d = v - c.n;
   if (c.k === 'anb') return v > 4 ? { cls: 'hi', t: 'Xương loại II' } : v < 0 ? { cls: 'lo', t: 'Xương loại III' } : { cls: 'ok', t: 'Xương loại I' };
   if (c.k === 'fma' || c.k === 'sngogn' || c.k === 'yaxis') return d > c.sd ? { cls: 'hi', t: 'Góc mở' } : d < -c.sd ? { cls: 'lo', t: 'Góc đóng' } : { cls: 'ok', t: 'Bình thường' };
-  if (c.k === 'eline') return d > c.sd ? { cls: 'hi', t: 'Môi nhô' } : d < -c.sd ? { cls: 'lo', t: 'Môi lùi' } : { cls: 'ok', t: 'Bình thường' };
+  if (c.k === 'eline' || c.k === 'elineU') return d > c.sd ? { cls: 'hi', t: 'Môi nhô' } : d < -c.sd ? { cls: 'lo', t: 'Môi lùi' } : { cls: 'ok', t: 'Bình thường' };
+  if (c.k === 'sesl') return d < -c.sd ? { cls: 'lo', t: 'Xương hàm dưới nhỏ' } : d > c.sd ? { cls: 'hi', t: 'Xương hàm dưới lớn' } : { cls: 'ok', t: 'Trong giới hạn' };
   if (Math.abs(d) <= c.sd) return { cls: 'ok', t: 'Trong giới hạn' };
   return d > 0 ? { cls: 'hi', t: `Cao hơn chuẩn ${(+d.toFixed(1)).toLocaleString('vi-VN')}` } : { cls: 'lo', t: `Thấp hơn chuẩn ${(+(-d).toFixed(1)).toLocaleString('vi-VN')}` };
 }
 function cephValue(p, k) {
   if (k === 'anb') { const a = num(getPath(p, 'ceph.sna')), b = num(getPath(p, 'ceph.snb')); return a !== null && b !== null ? +(a - b).toFixed(1) : null; }
+  if (k === 'sesl') { const se = num(getPath(p, 'ceph.se')), sl = num(getPath(p, 'ceph.sl')); return se !== null && sl !== null ? +(se + sl).toFixed(1) : null; }
   const c = CEPH.find(x => x.k === k);
   if (c && c.text) return getPath(p, 'ceph.' + k) || null;
   return num(getPath(p, 'ceph.' + k));
@@ -1507,7 +1511,7 @@ function cephHTML(p) {
       const v = cephValue(p, c.k), vd = cephVerdict(c, v);
       let input;
       if (c.calc) {
-        input = `<div class="ctl"><input id="ceph_anb" type="text" readonly value="${v ?? ''}" class="has-unit" aria-label="ANB tự tính"><span class="unit">${c.u}</span></div>`;
+        input = `<div class="ctl"><input id="ceph_${c.k}" type="text" readonly value="${v ?? ''}" class="has-unit" aria-label="${esc(c.l)} tự tính"><span class="unit">${c.u}</span></div>`;
       } else if (c.text) {
         input = `<input id="${fid('ceph.' + c.k)}" data-k="ceph.${c.k}" type="text" value="${esc(getPath(p, 'ceph.' + c.k) ?? '')}" aria-label="${esc(c.l)}" placeholder="CS1–CS6" style="width:100%;max-width:120px">`;
       } else {
@@ -1739,6 +1743,14 @@ function visitsHTML(p) {
 }
 
 /* ───────────── Bệnh án tổng hợp ───────────── */
+function baBigImgBlock(p, group, addLabel) {
+  if (S.imagesFor !== p.id) return `<p class="note" style="padding:10px 14px">Đang tải ảnh…</p>`;
+  const imgs = S.images.filter(m => (KIND[m.kind] || {}).g === group && m.set === 'initial').sort(byDate);
+  const btn = `<button class="btn btn-quiet btn-sm" type="button" data-img-add data-set="initial" data-group="${group}" style="margin:8px 14px">${esc(addLabel)}</button>`;
+  if (!imgs.length) return `<div style="padding:2px 0">${btn}</div>`;
+  return `<div style="padding:2px 0">${btn}<div class="igrid" style="padding:0 14px 12px">${imgs.map(m => tile(m, p)).join('')}</div></div>`;
+}
+
 function benhAnHTML(p) {
   const ba = p.benh_an || {};
   const tx = (k, ph) => `<input type="text" data-k="benh_an.${k}" value="${esc(ba[k] || '')}" placeholder="${esc(ph || '')}" style="width:100%;border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)">`;
@@ -1806,6 +1818,8 @@ function benhAnHTML(p) {
     ${row('Tương quan môi / E-line', area('lipEline', 'Mô tả vị trí môi trên, môi dưới so với đường thẩm mỹ', 2))}
     ${row('Nhận xét khác', area('extraOther', '', 2))}
   </table>
+  <div class="ba-subsec" style="margin-top:10px; color:var(--fg2); font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding-bottom:0">Ảnh ngoài mặt</div>
+  ${baBigImgBlock(p, 'ex', '+ Thêm ảnh ngoài mặt')}
   <div class="ba-subsec" style="margin-top:14px"><b>B. Khám trong miệng</b></div>
   <table class="ba-tbl">
     ${row('Vệ sinh răng miệng', `<select data-k="benh_an.hygiene" style="border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)"><option>—</option><option>Tốt</option><option>Trung bình</option><option>Kém</option></select>`)}
@@ -1822,14 +1836,18 @@ function benhAnHTML(p) {
     ${row('Cắn hở / cắn sâu', area('specialBite', 'Mô tả cắn hở vùng trước/sau, cắn ngược…', 2))}
     ${row('Khớp thái dương hàm', area('tmj', 'Đau, tiếng lạo xạo, há miệng hạn chế…', 2))}
     ${row('Nhận xét khác', area('intraOther','',2))}
-  </table>`);
+  </table>
+  <div class="ba-subsec" style="margin-top:10px; color:var(--fg2); font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding-bottom:0">Ảnh trong miệng</div>
+  ${baBigImgBlock(p, 'in', '+ Thêm ảnh trong miệng')}`);
 
   const V = sec('V.', 'Phân tích mẫu hàm', `<table class="ba-tbl">
     ${row('Khoảng hiện có HT / HD (mm)', `<div style="display:flex;gap:10px"><div class="ctl" style="max-width:110px"><input type="number" step="0.1" data-k="benh_an.availU" value="${esc(ba.availU||'')}" class="has-unit" placeholder="HT"><span class="unit">mm</span></div><div class="ctl" style="max-width:110px"><input type="number" step="0.1" data-k="benh_an.availL" value="${esc(ba.availL||'')}" class="has-unit" placeholder="HD"><span class="unit">mm</span></div></div>`)}
     ${row('Khoảng cần có HT / HD (mm)', `<div style="display:flex;gap:10px"><div class="ctl" style="max-width:110px"><input type="number" step="0.1" data-k="benh_an.reqU" value="${esc(ba.reqU||'')}" class="has-unit" placeholder="HT"><span class="unit">mm</span></div><div class="ctl" style="max-width:110px"><input type="number" step="0.1" data-k="benh_an.reqL" value="${esc(ba.reqL||'')}" class="has-unit" placeholder="HD"><span class="unit">mm</span></div></div>`)}
     ${row('Chỉ số Bolton răng trước / toàn bộ', `<div style="display:flex;gap:10px"><div class="ctl" style="max-width:110px"><input type="number" step="0.1" data-k="benh_an.boltonAnt" value="${esc(ba.boltonAnt||'')}" class="has-unit" placeholder="Trước"><span class="unit">%</span></div><div class="ctl" style="max-width:110px"><input type="number" step="0.1" data-k="benh_an.boltonAll" value="${esc(ba.boltonAll||'')}" class="has-unit" placeholder="Toàn bộ"><span class="unit">%</span></div></div>`)}
     ${row('Nhận xét mẫu hàm', area('modelConclusion', 'Kết luận phân tích khoảng, Bolton, dạng cung, bất thường…', 3))}
-  </table>`);
+  </table>
+  <div class="ba-subsec" style="margin-top:10px; color:var(--fg2); font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding-bottom:0">Ảnh mẫu hàm</div>
+  ${baBigImgBlock(p, 'model', '+ Thêm ảnh mẫu hàm')}`);
 
   const VI = sec('VI.', 'Phân tích phim X-quang', `
   <div class="ba-subsec"><b>Phim toàn cảnh (Panorama)</b></div>
@@ -1837,6 +1855,8 @@ function benhAnHTML(p) {
     ${row('Ngày chụp', `<input type="date" data-k="benh_an.panoDate" value="${esc(ba.panoDate||'')}" style="border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)">`)}
     ${row('Nhận xét panorama', area('panoNotes', 'Số răng, mầm răng khôn, răng ngầm, tiêu chân răng, chiều cao xương…', 3))}
   </table>
+  <div class="ba-subsec" style="margin-top:10px; color:var(--fg2); font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding-bottom:0">Phim X-quang</div>
+  ${baBigImgBlock(p, 'film', '+ Thêm phim X-quang')}
   <div class="ba-subsec" style="margin-top:14px"><b>Phim sọ nghiêng — Bảng Cephalometric (Steiner + Harvold + Mô mềm)</b></div>
   <div class="tbl-wrap" style="margin-top:8px">
     <table style="width:100%;border-collapse:collapse;min-width:580px">
@@ -1908,6 +1928,9 @@ function refreshImages() {
   const p = Store.get(S.pid); if (!p) return;
   const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
   set('films', filmsHTML(p)); set('imgs', imagesHTML(p)); set('visits', visitsHTML(p)); set('model-imgs', modelImagesHTML(p));
+  // Re-render bệnh án tab nếu đang mở (có chứa baBigImgBlock inline)
+  const baPanel = document.getElementById('panel-benh_an');
+  if (baPanel && !baPanel.hidden) { baPanel.innerHTML = benhAnHTML(p); }
 }
 let unwatchImgs = null;
 function stopWatchingImages() { if (unwatchImgs) { try { unwatchImgs(); } catch (e) {} unwatchImgs = null; } }
@@ -3212,6 +3235,7 @@ function updateCeph() {
     if (el) { el.className = 'dev ' + vd.cls; el.textContent = vd.t; }
   });
   const anb = $('#ceph_anb'); if (anb) anb.value = cephValue(tmp, 'anb') ?? '';
+  const sesl = $('#ceph_sesl'); if (sesl) sesl.value = cephValue(tmp, 'sesl') ?? '';
 }
 async function patch(fn, msg) {
   const p = clone(Store.get(S.pid)); if (!p) return;
