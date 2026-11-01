@@ -1930,11 +1930,18 @@ function benhAnSections(p) {
     ${row('Môi dưới so với E-line (mm)', `<div class="ctl" style="max-width:100px"><input type="number" step="0.5" data-k="benh_an.loLipEline" value="${esc(ba.loLipEline||'')}" class="has-unit"><span class="unit">mm</span></div>`)}
   </table>
   <div class="ba-subsec" style="margin-top:8px"><b>3. Khám thần kinh cơ, khớp thái dương hàm</b></div>
+  <div class="ba-subsec" style="margin-top:6px; margin-left:8px; font-weight:600; font-size:12.5px; color:var(--fg2)">a. Lưỡi</div>
   <table class="ba-tbl">
     ${row('Vị trí lưỡi lúc nghỉ', `<select data-k="benh_an.tongueRest" style="border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)"><option>—</option><option>Khẩu cái (bình thường)</option><option>Dưới sàn miệng</option><option>Giữa hai cung hàm</option></select>`)}
     ${row('Dính lưỡi', `<select data-k="benh_an.tongueTie" style="border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)"><option>—</option><option>Không</option><option>Có — nhẹ</option><option>Có — vừa</option><option>Có — nặng</option></select>`)}
+  </table>
+  <div class="ba-subsec" style="margin-top:6px; margin-left:8px; font-weight:600; font-size:12.5px; color:var(--fg2)">b. Cơ nhai</div>
+  <table class="ba-tbl">
     ${row('Hệ thống cơ nhai', `<select data-k="benh_an.masseter" style="border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)"><option>—</option><option>Bình thường</option><option>Cơ nhai phì đại</option><option>Đau cơ nhai</option></select>`)}
     ${row('Đau cơ TMJ', `<select data-k="benh_an.tmjMuscle" style="border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)"><option>—</option><option>Không đau</option><option>Đau nhẹ</option><option>Đau rõ</option></select>`)}
+  </table>
+  <div class="ba-subsec" style="margin-top:6px; margin-left:8px; font-weight:600; font-size:12.5px; color:var(--fg2)">c. Khớp TMJ</div>
+  <table class="ba-tbl">
     ${row('Đau khớp TMJ', `<select data-k="benh_an.tmjJoint" style="border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)"><option>—</option><option>Không</option><option>Có</option></select>`)}
     ${row('Biên độ há miệng (cm)', `<div class="ctl" style="max-width:100px"><input type="number" step="0.1" data-k="benh_an.mouthOpening" value="${esc(ba.mouthOpening||'')}" class="has-unit"><span class="unit">cm</span></div>`)}
     ${row('Tiếng kêu khớp', `<select data-k="benh_an.tmjSound" style="border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)"><option>—</option><option>Không có</option><option>Lạo xạo (crepitus)</option><option>Tiếng click</option></select>`)}
@@ -1955,19 +1962,14 @@ function benhAnSections(p) {
 
   const selSt = `border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)`;
   const V = sec('V.', 'Khám trong miệng', `
-  <div class="ba-subsec"><b>1. Khám ngoài miệng chung</b></div>
-  <table class="ba-tbl">
-    ${row('Vệ sinh răng miệng', `<select data-k="benh_an.hygiene" style="${selSt}"><option>—</option><option>Tốt</option><option>Trung bình</option><option>Kém</option></select>`)}
-    ${row('Tình trạng nướu', `<select data-k="benh_an.gingiva" style="${selSt}"><option>—</option><option>Bình thường</option><option>Viêm nướu nhẹ</option><option>Viêm nướu nặng</option><option>Viêm nha chu</option></select>`)}
-  </table>
-  <div class="ba-subsec" style="margin-top:8px"><b>2. Chiều dọc</b></div>
+  <div class="ba-subsec"><b>1. Chiều dọc</b></div>
   <table class="ba-tbl">
     ${row('Đường giữa HT so với mặt', `<select data-k="benh_an.midlineU" style="${selSt}"><option>—</option><option>Trùng đường giữa mặt</option><option>Lệch phải</option><option>Lệch trái</option></select>`)}
     ${row('Đường giữa HD so với HT', `<select data-k="benh_an.midlineL" style="${selSt}"><option>—</option><option>Trùng đường giữa HT</option><option>Lệch phải</option><option>Lệch trái</option></select>`)}
     ${row('Cắn phủ OB (mm)', `<div class="ctl" style="max-width:100px"><input type="number" step="0.5" data-k="benh_an.ob" value="${esc(ba.ob||'')}" class="has-unit"><span class="unit">mm</span></div>`)}
     ${row('Cắn hở (mm, ghi âm nếu hở)', `<div class="ctl" style="max-width:100px"><input type="number" step="0.5" data-k="benh_an.openBite" value="${esc(ba.openBite||'')}" class="has-unit"><span class="unit">mm</span></div>`)}
   </table>
-  <div class="ba-subsec" style="margin-top:8px"><b>3. Chiều trước sau</b></div>
+  <div class="ba-subsec" style="margin-top:8px"><b>2. Chiều trước sau</b></div>
   <table class="ba-tbl">
     ${row('Phân loại Angle', `<select data-k="benh_an.angle" style="${selSt}"><option>—</option><option>Angle I</option><option>Angle II/1</option><option>Angle II/2</option><option>Angle III</option></select>`)}
     ${row('Tương quan R6 phải / trái', `<div style="display:flex;gap:12px"><label style="display:flex;align-items:center;gap:6px;font-size:13px">Phải: <select data-k="benh_an.molarR" style="${selSt}"><option>—</option><option>Loại I</option><option>Loại II</option><option>Loại III</option></select></label><label style="display:flex;align-items:center;gap:6px;font-size:13px">Trái: <select data-k="benh_an.molarL" style="${selSt}"><option>—</option><option>Loại I</option><option>Loại II</option><option>Loại III</option></select></label></div>`)}
@@ -1975,7 +1977,7 @@ function benhAnSections(p) {
     ${row('Tương quan răng sữa phải / trái', `<div style="display:flex;gap:12px"><label style="display:flex;align-items:center;gap:6px;font-size:13px">Phải: <select data-k="benh_an.deciduousR" style="${selSt}"><option>—</option><option>Bậc xuống gần</option><option>Thẳng</option><option>Bậc xuống xa</option></select></label><label style="display:flex;align-items:center;gap:6px;font-size:13px">Trái: <select data-k="benh_an.deciduousL" style="${selSt}"><option>—</option><option>Bậc xuống gần</option><option>Thẳng</option><option>Bậc xuống xa</option></select></label></div>`)}
     ${row('Cắn chìa OJ (mm)', `<div class="ctl" style="max-width:100px"><input type="number" step="0.5" data-k="benh_an.oj" value="${esc(ba.oj||'')}" class="has-unit"><span class="unit">mm</span></div>`)}
   </table>
-  <div class="ba-subsec" style="margin-top:8px"><b>4. Chiều ngang</b></div>
+  <div class="ba-subsec" style="margin-top:8px"><b>3. Chiều ngang</b></div>
   <table class="ba-tbl">
     ${row('Cắn chéo phía sau', `<select data-k="benh_an.crossbite" style="${selSt}"><option>—</option><option>Không có</option><option>Cắn chéo phải</option><option>Cắn chéo trái</option><option>Cắn chéo hai bên</option></select>`)}
     ${row('Độ rộng cung hàm trên (mm)', `<div class="ctl" style="max-width:110px"><input type="number" step="0.5" data-k="benh_an.archWidthU" value="${esc(ba.archWidthU||'')}" class="has-unit"><span class="unit">mm</span></div>`)}
@@ -1984,7 +1986,7 @@ function benhAnSections(p) {
     ${row('Đường cong Spee', `<select data-k="benh_an.curveSpee" style="${selSt}"><option>—</option><option>Bình thường</option><option>Sâu</option><option>Bằng phẳng</option><option>Ngược</option></select>`)}
     ${row('Đường cong Wilson', `<select data-k="benh_an.curveWilson" style="${selSt}"><option>—</option><option>Bình thường</option><option>Sâu</option><option>Bằng phẳng</option></select>`)}
   </table>
-  <div class="ba-subsec" style="margin-top:8px"><b>5. Khám trong từng cung hàm</b></div>
+  <div class="ba-subsec" style="margin-top:8px"><b>4. Khám từng cung hàm</b></div>
   <table class="ba-tbl">
     ${row('Hàm trên — Hình dạng cung', `<select data-k="benh_an.archFormU" style="${selSt}"><option>—</option><option>Oval</option><option>Vuông (square)</option><option>Nhọn (tapered)</option></select>`)}
     ${row('Hàm trên — Giai đoạn hàm răng', `<select data-k="benh_an.dentStageU" style="${selSt}"><option>—</option><option>Răng sữa hoàn toàn</option><option>Hỗn hợp sớm</option><option>Hỗn hợp muộn</option><option>Vĩnh viễn hoàn toàn</option></select>`)}
@@ -1992,9 +1994,14 @@ function benhAnSections(p) {
     ${row('Hàm dưới — Hình dạng cung', `<select data-k="benh_an.archFormL" style="${selSt}"><option>—</option><option>Oval</option><option>Vuông (square)</option><option>Nhọn (tapered)</option></select>`)}
     ${row('Hàm dưới — Giai đoạn hàm răng', `<select data-k="benh_an.dentStageL" style="${selSt}"><option>—</option><option>Răng sữa hoàn toàn</option><option>Hỗn hợp sớm</option><option>Hỗn hợp muộn</option><option>Vĩnh viễn hoàn toàn</option></select>`)}
     ${row('Hàm dưới — Mô tả tình trạng', area('archDescL', 'Liệt kê các răng bất thường, lệch lạc, thiếu, thừa…', 3))}
-    ${row('Mô mềm trong miệng', area('softTissueIntra', 'Phanh môi, phanh má, phanh lưỡi, dính lưỡi, tình trạng từng răng sâu/trám…', 3))}
   </table>
-  <div class="ba-subsec" style="margin-top:12px"><b>Tóm tắt trong miệng</b></div>
+  <div class="ba-subsec" style="margin-top:6px; margin-left:8px; font-weight:600; font-size:12.5px; color:var(--fg2)">c. Các vấn đề khác</div>
+  <table class="ba-tbl">
+    ${row('Vệ sinh răng miệng', `<select data-k="benh_an.hygiene" style="${selSt}"><option>—</option><option>Tốt</option><option>Trung bình</option><option>Kém</option></select>`)}
+    ${row('Tình trạng nướu', `<select data-k="benh_an.gingiva" style="${selSt}"><option>—</option><option>Bình thường</option><option>Viêm nướu nhẹ</option><option>Viêm nướu nặng</option><option>Viêm nha chu</option></select>`)}
+    ${row('Mô mềm trong miệng', area('softTissueIntra', 'Phanh môi, phanh má, phanh lưỡi, sâu răng, tình trạng nha chu, niêm mạc miệng…', 3))}
+  </table>
+  <div class="ba-subsec" style="margin-top:12px"><b>5. Tóm tắt trong miệng</b></div>
   <table class="ba-tbl">
     ${row('', area('intraOther', 'Hàm răng hỗn hợp, tương quan R6 Angel I hai bên…\nKhớp cắn ngược độ cắn trùm…\nCung răng hàm trên…', 4))}
   </table>
