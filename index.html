@@ -1835,17 +1835,20 @@ function syncBenhAn() {
   toast('Đã đồng bộ dữ liệu từ hồ sơ vào bệnh án.');
 }
 
-function benhAnHTML(p) {
+/* ── Shared helpers & sections for bệnh án tổng hợp + individual tabs ── */
+function benhAnHelpers(p) {
   const ba = p.benh_an || {};
   const tx = (k, ph) => `<input type="text" data-k="benh_an.${k}" value="${esc(ba[k] || '')}" placeholder="${esc(ph || '')}" style="width:100%;border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)">`;
   const area = (k, ph, rows) => `<textarea data-k="benh_an.${k}" rows="${rows||3}" placeholder="${esc(ph||'')}" style="width:100%;border:1px solid var(--line2);border-radius:4px;padding:6px 8px;resize:vertical;background:var(--surface)">${esc(ba[k]||'')}</textarea>`;
   const row = (label, field) => `<tr><td class="ba-lbl">${esc(label)}</td><td class="ba-val">${field}</td></tr>`;
-  const sec = (num, title, content) => `<section class="sec ba-sec"><h3 class="ba-h3"><span class="ba-num">${num}</span>${title}</h3><div class="body">${content}</div></section>`;
+  const sel = (k, opts) => `<select data-k="benh_an.${k}" style="border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)">${opts.map(o => `<option${ba[k]===o?' selected':''}>${esc(o)}</option>`).join('')}</select>`;
+  const num = (k, unit, step) => `<div class="ctl" style="max-width:110px"><input type="number" step="${step||0.5}" data-k="benh_an.${k}" value="${esc(ba[k]||'')}" class="has-unit"><span class="unit">${esc(unit)}</span></div>`;
+  return { ba, tx, area, row, sel, num };
+}
 
-  const syncBanner = `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--apple-soft,#f1e7d8);border:1px solid var(--apple,#dcc7aa);border-radius:8px;padding:10px 16px;margin-bottom:16px">
-    <span style="font-size:13px;color:var(--fg2)">Bệnh án tổng hợp thông tin từ tất cả các tab. Nhấn để cập nhật dữ liệu mới nhất từ hồ sơ.</span>
-    <button class="btn btn-quiet btn-sm" type="button" data-act="sync-benh-an" style="white-space:nowrap;flex-shrink:0">↻ Đồng bộ từ hồ sơ</button>
-  </div>`;
+function benhAnSections(p) {
+  const { ba, tx, area, row, sel, num } = benhAnHelpers(p);
+  const sec = (num2, title, content) => `<section class="sec ba-sec"><h3 class="ba-h3"><span class="ba-num">${num2}</span>${title}</h3><div class="body">${content}</div></section>`;
 
   // Cephalometric table (20 chỉ số)
   const cephGroups = [];
@@ -1862,7 +1865,7 @@ function benhAnHTML(p) {
       } else if (c.text) {
         inputCell = `<input type="text" data-k="ceph.${c.k}" value="${esc(getPath(p,'ceph.'+c.k)||'')}" placeholder="CS1–CS6" style="width:80px;border:1px solid var(--line2);border-radius:4px;padding:3px 6px">`;
       } else {
-        inputCell = `<div class="ctl" style="max-width:110px"><input id="${fid('ceph.'+c.k)}" data-k="ceph.${c.k}" type="number" inputmode="decimal" step="0.5" value="${esc(getPath(p,'ceph.'+c.k)||'')}" class="has-unit"><span class="unit">${c.u}</span></div>`;
+        inputCell = `<div class="ctl" style="max-width:110px"><input data-k="ceph.${c.k}" type="number" inputmode="decimal" step="0.5" value="${esc(getPath(p,'ceph.'+c.k)||'')}" class="has-unit"><span class="unit">${c.u}</span></div>`;
       }
       const verdict = c.text ? '' : `<span class="dev ${vd.cls}">${vd.t}</span>`;
       return `<tr style="${i%2?'background:var(--sunken)':''}"><td style="padding:5px 10px;font-size:12px;font-weight:600">${esc(c.l)}</td><td style="padding:5px 10px;font-size:12px;color:var(--fg3)">${esc(c.u)}</td><td style="padding:5px 10px;font-size:12px;color:var(--fg3)">${esc(ref)}</td><td style="padding:5px 10px">${inputCell}</td><td style="padding:5px 10px;font-size:12px">${verdict}</td></tr>`;
@@ -1982,23 +1985,26 @@ function benhAnHTML(p) {
     ${row('Ghi chú thêm', area('planNotes', '', 2))}
   </table>`);
 
-  return `<div class="ba-wrap">${syncBanner}${I}${II}${III}${IV}${V}${VI}${VII}${VIII}${IX}${X}</div>`;
+  return { I, II, III, IV, V, VI, VII, VIII, IX, X };
+}
+
+function benhAnHTML(p) {
+  const { I, II, III, IV, V, VI, VII, VIII, IX, X } = benhAnSections(p);
+  return `<div class="ba-wrap">${I}${II}${III}${IV}${V}${VI}${VII}${VIII}${IX}${X}</div>`;
 }
 
 /* ───────────── Record view ───────────── */
 function viewRec(p) {
+  const S_ = benhAnSections(p);
   const body = {
     info: SCHEMA.info.map(s => secHTML(s, p)).join(''),
-    exam: SCHEMA.exam.map(s => secHTML(s, p)).join(''),
-    xray: `<section class="sec"><h3>Phim X-quang theo đợt <button class="btn btn-primary btn-sm" type="button" data-img-add data-set="" data-group="film">Tải phim lên</button></h3><div id="films">${filmsHTML(p)}</div></section>`
-      + SCHEMA.xray.map(s => secHTML(s, p)).join('') + cephHTML(p),
-    model: `<section class="sec"><h3>Ảnh mẫu hàm <button class="btn btn-primary btn-sm" type="button" data-img-add data-set="" data-group="model">Tải ảnh mẫu hàm</button></h3><div id="model-imgs">${modelImagesHTML(p)}</div></section>
-      <section class="sec"><h3>Đánh giá mẫu hàm <small>Tự tính từ số đo bên dưới, cập nhật khi bạn nhập</small></h3><div class="body" id="model-eval">${modelEvalHTML(p)}</div></section>`
-      + SCHEMA.model.map(s => secHTML(s, p)).join(''),
-    plan: SCHEMA.plan.map(s => secHTML(s, p)).join('') + odoSection(p),
+    exam: S_.IV + S_.V,
+    xray: S_.VII,
+    model: S_.VI,
+    plan: S_.VIII + S_.IX + S_.X + odoSection(p),
     visits: `<section class="sec"><h3>Lịch sử tái khám <button class="btn btn-primary btn-sm" type="button" data-act="visit-new">Ghi lần tái khám</button></h3><div class="tl" id="visits">${visitsHTML(p)}</div></section>`,
     images: `<div class="stack" id="imgs">${imagesHTML(p)}</div>`,
-    benh_an: benhAnHTML(p)
+    benh_an: `<div class="ba-wrap">${S_.I}${S_.II}${S_.III}${S_.IV}${S_.V}${S_.VI}${S_.VII}${S_.VIII}${S_.IX}${S_.X}</div>`
   };
   return `<div class="rec-head" id="rec-head">${recHead(p)}</div>
     <div class="summary" id="rec-summary">${recSummary(p)}</div>
