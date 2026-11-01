@@ -1751,8 +1751,7 @@ function visitsHTML(p) {
 
 /* ───────────── Bệnh án tổng hợp ───────────── */
 function baBigImgBlock(p, group, addLabel) {
-  if (S.imagesFor !== p.id) return `<p class="note" style="padding:10px 14px">Đang tải ảnh…</p>`;
-  const imgs = S.images.filter(m => (KIND[m.kind] || {}).g === group && m.set === 'initial').sort(byDate);
+  const imgs = (S.imagesFor === p.id ? S.images : []).filter(m => (KIND[m.kind] || {}).g === group && m.set === 'initial').sort(byDate);
   const btn = `<button class="btn btn-quiet btn-sm" type="button" data-img-add data-set="initial" data-group="${group}" style="margin:8px 14px">${esc(addLabel)}</button>`;
   if (!imgs.length) return `<div style="padding:2px 0">${btn}</div>`;
   return `<div style="padding:2px 0">${btn}<div class="igrid" style="padding:0 14px 12px">${imgs.map(m => tile(m, p)).join('')}</div></div>`;
