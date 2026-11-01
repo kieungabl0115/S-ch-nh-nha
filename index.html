@@ -1885,8 +1885,9 @@ function benhAnSections(p) {
   </table>`);
 
   const II = sec('II.', 'Lý do khám', `<table class="ba-tbl">
-    ${row('Lý do chính', area('chiefComplaint', 'Bệnh nhân mong muốn được chỉnh răng vì…', 2))}
-    ${row('Người yêu cầu khám', `<select data-k="benh_an.referredBy" style="border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)"><option value="">—</option><option>Tự đến</option><option>Gia đình giới thiệu</option><option>Bác sĩ nha khoa giới thiệu</option><option>Khác</option></select>`)}
+    ${row('Lý do chính', area('chiefComplaint', 'Triệu chứng / vấn đề bệnh nhân hoặc người nhà quan tâm…\nvd: Cắn ngược vùng răng cửa, răng cửa mọc lệch, hô răng, chen chúc…', 2))}
+    ${row('Mong muốn điều trị', area('treatmentExpect', 'Bệnh nhân mong muốn: cải thiện thẩm mỹ, chức năng nhai, cả hai…', 2))}
+    ${row('Người đưa đến / giới thiệu', `<select data-k="benh_an.referredBy" style="border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)"><option value="">—</option><option>Tự đến</option><option>Gia đình giới thiệu</option><option>Bác sĩ nha khoa giới thiệu</option><option>Khác</option></select>`)}
   </table>`);
 
   const III = sec('III.', 'Tiền sử', `<table class="ba-tbl">
@@ -1937,6 +1938,7 @@ function benhAnSections(p) {
     ${row('Đau khớp TMJ', `<select data-k="benh_an.tmjJoint" style="border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)"><option>—</option><option>Không</option><option>Có</option></select>`)}
     ${row('Biên độ há miệng (cm)', `<div class="ctl" style="max-width:100px"><input type="number" step="0.1" data-k="benh_an.mouthOpening" value="${esc(ba.mouthOpening||'')}" class="has-unit"><span class="unit">cm</span></div>`)}
     ${row('Tiếng kêu khớp', `<select data-k="benh_an.tmjSound" style="border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)"><option>—</option><option>Không có</option><option>Lạo xạo (crepitus)</option><option>Tiếng click</option></select>`)}
+    ${row('Lệch hàm khi há / ngậm', `<select data-k="benh_an.tmjDeviation" style="border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)"><option>—</option><option>Không lệch</option><option>Lệch sang phải khi há</option><option>Lệch sang trái khi há</option><option>Lệch phải rồi về giữa</option><option>Lệch trái rồi về giữa</option></select>`)}
   </table>
   <div class="ba-subsec" style="margin-top:8px"><b>4. Khám chức năng</b></div>
   <table class="ba-tbl">
@@ -2102,11 +2104,11 @@ function benhAnSections(p) {
   </table>`);
 
   const IX = sec('IX.', 'Chẩn đoán', `<table class="ba-tbl">
-    ${row('Chẩn đoán', area('diagnosis', 'Kiểu mặt…\nGiai đoạn tăng trưởng…\nTương quan xương hạng…\nHàm răng…\nKhớp cắn…\nCung hàm…', 8))}
+    ${row('Chẩn đoán', area('diagnosis', '1. Mô mềm: Kiểu mặt …, mặt nghiêng …, môi …, cằm …, cân xứng …\n2. Xương: Tương quan xương hạng …, vị trí HT/HD so với nền sọ …, hướng phát triển …\n3. Răng: Giai đoạn bộ răng …, Angle …, cắn trùm … mm, cắn chìa … mm, chen chúc/thưa …\n4. Chức năng: Thở …, nuốt …, vị trí lưỡi …, trượt hàm dưới …, TMJ …\n5. Vấn đề phối hợp: Sâu răng, nha chu, dính lưỡi, răng ngầm …', 10))}
   </table>`);
 
   const X = sec('X.', 'Mục tiêu & kế hoạch điều trị', `<table class="ba-tbl">
-    ${row('Mục tiêu điều trị', area('treatmentGoals', 'Đưa tương quan xương về loại I.\nDuy trì tương quan răng 6 loại I.\nDựng trục răng cửa trên…\n', 6))}
+    ${row('Mục tiêu điều trị', area('treatmentGoals', 'Xương: Cải thiện/duy trì tương quan xương …\nRăng: Đưa R6 về Angle I, điều chỉnh cắn trùm/cắn chìa, sắp xếp răng đều …\nMô mềm & thẩm mỹ: Cải thiện độ nhô môi, đường cười …\nChức năng: Cải thiện nhai, điều chỉnh thói quen xấu …\nPhối hợp: Điều trị sâu/nha chu trước chỉnh nha, can thiệp phanh lưỡi …', 8))}
     ${row('Kế hoạch điều trị', area('planDetail', 'Giai đoạn 1: …\nGiai đoạn 2: …\nGiai đoạn 3: …', 6))}
     ${row('Răng chỉ định nhổ', tx('extractions', 'vd: 14, 24, 35, 45'))}
     ${row('Thời gian dự kiến', `<div class="ctl" style="max-width:110px"><input type="number" data-k="benh_an.duration" value="${esc(ba.duration||'')}" class="has-unit"><span class="unit">tháng</span></div>`)}
