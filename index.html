@@ -2081,19 +2081,14 @@ function benhAnSections(p) {
   ${baBigImgBlock(p, 'model', '+ Thêm ảnh mẫu hàm')}`);
 
   const VII = sec('VII.', 'Phân tích phim X-quang', `
-  <div class="ba-subsec"><b>Phim toàn cảnh (Panorama)</b></div>
+  <div class="ba-subsec"><b>1. Phim toàn cảnh (Panorama)</b></div>
   <table class="ba-tbl">
     ${row('Ngày chụp', `<input type="date" data-k="benh_an.panoDate" value="${esc(ba.panoDate||'')}" style="border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)">`)}
-    ${row('Nhận xét panorama', area('panoNotes', 'Số răng, mầm răng khôn, răng ngầm, tiêu chân răng, chiều cao xương…', 3))}
+    ${row('Nhận xét panorama', area('panoNotes', 'Số răng, mầm răng, răng ngầm, tiêu chân răng, chiều cao xương ổ răng, tình trạng bệnh lý vùng chóp / xương hàm…', 3))}
   </table>
   <div class="ba-subsec" style="margin-top:10px; color:var(--fg2); font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding-bottom:0">Phim X-quang</div>
   ${baBigImgBlock(p, 'film', '+ Thêm phim X-quang')}
-  <div class="ba-subsec" style="margin-top:14px"><b>Đánh giá đỉnh tăng trưởng (Đốt sống cổ — CVM)</b></div>
-  <table class="ba-tbl">
-    ${row('Giai đoạn đốt sống cổ', `<select data-k="benh_an.cvmStage" style="border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)"><option>—</option><option>CS1 — Chưa đạt đỉnh tăng trưởng (2 năm trước)</option><option>CS2 — Chưa đạt đỉnh tăng trưởng (1 năm trước)</option><option>CS3 — Đỉnh tăng trưởng (0–1 năm trước)</option><option>CS4 — Đỉnh tăng trưởng (1–2 năm trước)</option><option>CS5 — Qua đỉnh tăng trưởng</option><option>CS6 — Hoàn thành tăng trưởng</option></select>`)}
-    ${row('Nhận xét tăng trưởng', area('cvmNotes', 'Mô tả chi tiết các đốt sống C2-C4…', 2))}
-  </table>
-  <div class="ba-subsec" style="margin-top:14px"><b>Phim sọ nghiêng — Bảng Cephalometric (Steiner + Harvold + Mô mềm)</b></div>
+  <div class="ba-subsec" style="margin-top:14px"><b>2. Phim sọ nghiêng — Bảng Cephalometric (Steiner + Harvold + Mô mềm)</b></div>
   <div class="tbl-wrap" style="margin-top:8px">
     <table style="width:100%;border-collapse:collapse;min-width:580px">
       <thead><tr style="background:var(--sunken)"><th style="padding:7px 10px;font-size:12px;font-weight:700;color:var(--fg2);text-align:left;border-bottom:2px solid var(--line2)">Chỉ số</th><th style="padding:7px 10px;font-size:12px;font-weight:700;color:var(--fg2);text-align:left;border-bottom:2px solid var(--line2)">Đơn vị</th><th style="padding:7px 10px;font-size:12px;font-weight:700;color:var(--fg2);text-align:left;border-bottom:2px solid var(--line2)">Tham chiếu</th><th style="padding:7px 10px;font-size:12px;font-weight:700;color:var(--fg2);text-align:left;border-bottom:2px solid var(--line2)">Giá trị đo</th><th style="padding:7px 10px;font-size:12px;font-weight:700;color:var(--fg2);text-align:left;border-bottom:2px solid var(--line2)">Đánh giá</th></tr></thead>
@@ -2102,6 +2097,11 @@ function benhAnSections(p) {
   </div>
   <table class="ba-tbl" style="margin-top:12px">
     ${row('Tóm tắt phân tích phim', area('cephConclusion', 'Tóm tắt tương quan xương, vị trí răng, mô mềm…', 3))}
+  </table>
+  <div class="ba-subsec" style="margin-top:14px"><b>3. Đánh giá giai đoạn tăng trưởng (Đốt sống cổ — CVM)</b></div>
+  <table class="ba-tbl">
+    ${row('Giai đoạn đốt sống cổ', `<select data-k="benh_an.cvmStage" style="border:1px solid var(--line2);border-radius:4px;padding:4px 8px;background:var(--surface)"><option>—</option><option>CS1 — Chưa đạt đỉnh tăng trưởng (2 năm trước)</option><option>CS2 — Chưa đạt đỉnh tăng trưởng (1 năm trước)</option><option>CS3 — Đỉnh tăng trưởng (0–1 năm trước)</option><option>CS4 — Đỉnh tăng trưởng (1–2 năm trước)</option><option>CS5 — Qua đỉnh tăng trưởng</option><option>CS6 — Hoàn thành tăng trưởng</option></select>`)}
+    ${row('Nhận xét tăng trưởng', area('cvmNotes', 'Mô tả chi tiết các đốt sống C2-C4…', 2))}
   </table>`);
 
   const VIII = sec('VIII.', 'Tóm tắt vấn đề', `<table class="ba-tbl">
